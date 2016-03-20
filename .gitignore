@@ -1,0 +1,10 @@
+node_modules
+*.swp
+config/*
+services/mailer/config.json
+npm-debug.log
+_*
+secret
+output
+
+#Allow
