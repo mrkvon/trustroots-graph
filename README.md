@@ -1,11 +1,14 @@
 #Trustroots graph
+
 This script finds users of [trustroots.org](https://www.trustroots.org) and their connection to other users.
+
 It crawls through the trustroots network searching users and their connections.
 Users without connection to the main network will not be found.
 
 ##Prerequisities
 
 nodejs installed
+
 node package manager (npm) installed
 
 ##Installation
