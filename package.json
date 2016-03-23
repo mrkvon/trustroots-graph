@@ -10,9 +10,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "phantom": "^2.0.4",
-    "phantomjs": "^2.1.3",
-    "request": "latest",
-    "zombie": "^4.2.1"
+    "request": "latest"
   }
 }

@@ -71,9 +71,12 @@ function getConnections(id) {
         var cts = [];
 
         for(let cnt of jb){
-          let us = cnt.users;
-          let usr = cnt.users[0]._id === id ? cnt.users[1] : cnt.users[0];
-          cts.push(usr);
+          //include only confirmed contacts
+          if(cnt.confirmed === true || cnt.confirmed === undefined) {
+            let us = cnt.users;
+            let usr = cnt.users[0]._id === id ? cnt.users[1] : cnt.users[0];
+            cts.push(usr);
+          }
         }
         resolve(cts);
       });
