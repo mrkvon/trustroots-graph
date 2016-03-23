@@ -8,6 +8,8 @@ var get = functions.get; //user, connections
 var login = require('./secret/login');
 
 request.post({url: 'https://www.trustroots.org/api/auth/signin', form:{username: login.username, password: login.password}}, function (err, resp, body) {
+  //initial username to start the search from
+  //change according to your taste
   var checkuser = 'mrkvon';
   var nodes = [checkuser];
   var links = [];
