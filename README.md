@@ -37,6 +37,7 @@ node package manager (npm) installed
 
 ##To do
 
+- time development of the network
 - shortest path between users
 - easier installation
 - comments and nicer code
