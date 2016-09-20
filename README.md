@@ -17,7 +17,7 @@ Node Package Manager (npm) installed
 2. run the following commands in terminal in the folder of the repository
 
 		npm install
-                npm run prepare
+		npm run prepare
 
 ##Usage
 
