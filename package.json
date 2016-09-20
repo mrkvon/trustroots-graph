@@ -1,15 +1,28 @@
 {
-  "name": "scraper",
-  "version": "1.0.0",
+  "name": "tr_scraper",
+  "version": "1.1.0",
   "description": "information scraper for trustroots",
   "main": "index.js",
+  "dependencies": {
+    "co": "^4.6.0",
+    "denodeify": "^1.2.1",
+    "prompt": "^1.0.0",
+    "request": "^2.75.0"
+  },
+  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./index.js"
+    "start": "node ./index.js",
+    "prepare": ". ./prepare.sh"
   },
-  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mrkvon/trustroots-graph.git"
+  },
+  "author": "mrkvon",
   "license": "MIT",
-  "dependencies": {
-    "request": "latest"
-  }
+  "bugs": {
+    "url": "https://github.com/mrkvon/trustroots-graph/issues"
+  },
+  "homepage": "https://github.com/mrkvon/trustroots-graph#readme"
 }

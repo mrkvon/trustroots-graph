@@ -1,103 +1,75 @@
 'use strict';
 
-var fs = require('fs');
-var request = require('request').defaults({jar: true});
-var functions = require('./functions');
-var output = functions.output;//graph, users
-var get = functions.get; //user, connections
-var login = require('./secret/login');
+let TR = require('./TR');
+let Graph = require('./Graph');
+let co = require('co');
+let prompt = require('prompt');
+let denodeify = require('denodeify');
+let promptGet = denodeify(prompt.get);
 
-request.post({url: 'https://www.trustroots.org/api/auth/signin', form:{username: login.username, password: login.password}}, function (err, resp, body) {
-  //initial username to start the search from
-  //change according to your taste
-  var checkuser = 'mrkvon';
-  var nodes = [checkuser];
-  var links = [];
-
-  return scrape([checkuser], nodes, links)//, paths, connections)
-    .then(null, function (err) {
-      if(err) console.org(err);
-    });
-});
-
-//this function should get users connected to previous row of users 
-function scrape(usersToResearch, foundUsers, links) {
-  //console.log(usersToResearch, 'scrape!');
-  //console.log(foundUsers, 'found users');
-
-  var contactUsernames = [];
-  var promiseChain = Promise.resolve();
-  for(let usrnm of usersToResearch) {
-
-    promiseChain = promiseChain.then(researchFunction(usrnm, contactUsernames, links));
-    
-
-  }
-
-  return promiseChain
-    .then(function () {
-      var newLevel = [];
-      //console.log(contactArrays);
-      //if users were not scraped yet
-      //add them to usersToScrape
-      //and add the to newLevel
-        //console.log(ca);
-      //console.log(contactUsernames);
-      for(let c of contactUsernames) {
-        if(foundUsers.indexOf(c) === -1) {
-          foundUsers.push(c);
-          newLevel.push(c);
-          console.log(c);
-        }
-        else{
-          console.log('***', c);
-        }
+return co(function * () {
+  var loginSchema = {
+    properties: {
+      username: {
+        required: true
+      },
+      password: {
+        hidden: true,
+        replace: '*'
       }
-      //console.log(newLevel);
-      return newLevel;
-    })
-    .then(function (nl) {
-      //console.log(nl);
-      console.log(foundUsers.length, '*******');
-      console.log(nl.length, 'next level');
-      if(nl.length > 0) {
-        scrape(nl, foundUsers, links);
-      }
-      else {
-        console.log(foundUsers.length);
-        console.log('writing graph');
-        return output.graph(foundUsers.sort(), links, 'graph')
-          .then(function () {
-            console.log('writing users')
-            return output.users(foundUsers.sort(), 'users');
-          })
-          .then(function () {
-            console.log('finished!');
-          })
-          .then(null, function (err){
-            console.log(err);
-          });
-      }
-    });
-}
-
-//this returns a function to put to .then() to create a for cycle.
-function researchFunction(username, contactUsernames, links) {
-  return function () {
-    return get.user(username)
-      .then(function (_usr) {
-        return get.connections(_usr._id);
-      })
-      .then(function (cts) {
-        for (let contact of cts) {
-          if(contact) {
-            links.push([contact.username, username]);
-            if(contactUsernames.indexOf(contact.username) === -1)
-              contactUsernames.push(contact.username);
-          }
-        }
-        return;
-      })
-      .then(null, function (err) {console.log(err, username);});
+    }
   };
-}
+
+  var startSchema = {
+    properties: {
+      username: {
+      }
+    }
+  }
+   
+  // 
+  // prompt for username and password
+  //
+  console.log('\n**************************************************\n')
+  console.log('\tWelcome to the Trustroots scraper!');
+  console.log('\n**************************************************\n\n')
+  console.log('Write your login data for trustroots.org:');
+  prompt.start();
+  let result = yield promptGet(loginSchema);
+  let username = result.username;
+  let password = result.password
+
+  yield TR.login(username, password);
+  console.log('successfully logged in as', username);
+
+
+  console.log(`\n\nWrite the username from which you wish to start crawling:\ndefault: ${username}`);
+  prompt.start();
+  let startResult = yield promptGet(startSchema);
+  let startUsername = startResult.username || username;
+
+  console.log('\nscraping started. be patient. it can take a while (around 1000 connected users).\n');
+  console.log('\noutput:\ncount  username  count contacts\n');
+
+  var graph = new Graph();
+  yield graph.scrape([startUsername]);
+
+  //write the data to files
+  yield graph.outputUsers();
+  yield graph.outputGraph();
+
+  console.log('\n\n********************************************************\n');
+  console.log('\tfinished successfully!\n');
+  console.log('\tyou will find the output in');
+  console.log('\t./output/graph.gdt');
+  console.log('\t./output/users.txt\n');
+  console.log('\tyou can try Gephi to visualise them\n');
+  console.log('\tGoodbye! ^_^\n');
+  console.log('********************************************************\n');
+})
+  .catch(function (e) {
+    if(e.status === 403) {
+      console.log('login not successful.');
+    }
+    else console.error(e);
+  });

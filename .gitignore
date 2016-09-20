@@ -4,7 +4,6 @@ config/*
 services/mailer/config.json
 npm-debug.log
 _*
-secret
 output
 
 #Allow
