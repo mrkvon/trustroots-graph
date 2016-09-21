@@ -9,10 +9,19 @@ class User {
   constructor (username) {
     this._username = username;
     this._contacts = [];
+    this._created;
   }
 
   get username () {
     return this._username;
+  }
+  
+  get created () {
+    return this._created;
+  }
+
+  get id () {
+    return this._id;
   }
 
   get contacts () {
@@ -20,7 +29,8 @@ class User {
     for(let contact of this._contacts) {
       contacts.push({
         username: contact.username,
-        id: contact.id
+        id: contact.id,
+        created: contact.created
       });
     }
     return contacts;
@@ -33,6 +43,7 @@ class User {
       let contacts = yield TR.contacts(user.id);
 
       this._id = user.id;
+      this._created = user.created
       this._contacts = contacts;
     });
   }

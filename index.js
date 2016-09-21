@@ -56,7 +56,7 @@ return co(function * () {
 
   //write the data to files
   yield graph.outputUsers();
-  yield graph.outputGraph();
+  yield graph.outputDynamicGraph();
 
   console.log('\n\n********************************************************\n');
   console.log('\tfinished successfully!\n');

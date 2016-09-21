@@ -27,7 +27,7 @@ class Graph {
     for(let user of users) {
       let contacts = user.contacts;
       for(let contact of contacts) {
-        links.push([user.username, contact.username]);      
+        links.push([user.username, contact.username, contact.created]);      
       }
     }
     return links;
@@ -115,6 +115,33 @@ class Graph {
     });
   }
 
+  outputDynamicGraph (filename) {
+    return co.call(this, function * () {
+      var path = `./output/${filename || 'graph'}.gdf`;
+      
+      //outputString will be eventually written to the gdf file
+      //first the node header
+      var outputString = 'nodedef>name VARCHAR,label VARCHAR,timeinterval VARCHAR\n';
+      //write users to the outputString;
+      let users = this.users;
+      for(let user of users) {
+        outputString += `${user.username},${user.username},${getOutputDate.call(user.created)}\n`;
+      }
+      
+      //write edge header to the outputString
+      outputString += 'edgedef>node1 VARCHAR,node2 VARCHAR,timeinterval VARCHAR\n'
+      //write links to the outputString
+      let links = this.links;
+      for(let link of links) {
+        outputString += `${link[0]},${link[1]},${getOutputDate.call(link[2])}\n`;
+      }
+      
+      //write the data to the file
+      yield unlink(path);
+      yield writeFile(path, outputString);
+    });
+  }
+
   outputUsers (filename) {
     return co.call(this, function * () {
       var path = `./output/${filename || 'users'}.txt`;
@@ -131,6 +158,16 @@ class Graph {
       yield writeFile(path, usernames.join('\n')+'\n');
     });
   }
+}
+
+function getOutputDate() {
+  let YYYY = this.getUTCFullYear();
+  let MM = `00${this.getUTCMonth()+1}`.slice(-2);
+  let DD = `00${this.getUTCDate()}`.slice(-2);
+  let hh = `00${this.getUTCHours()}`.slice(-2);
+  let mm = `00${this.getUTCMinutes()}`.slice(-2);
+  let ss = `00${this.getUTCSeconds()}`.slice(-2);
+  return `${YYYY}-${MM}-${DD} ${hh}:${mm}:${ss}`;
 }
 
 module.exports = Graph;
