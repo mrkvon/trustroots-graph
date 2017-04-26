@@ -74,18 +74,15 @@ class TR {
       for(let rawContact of jsonBody){
         //include only confirmed and not deleted
         if(rawContact && rawContact.confirmed === true) {
-          let users = rawContact.users;
-          if(users.length === 2) { //protection from deleted contact
-            let contact = users[0]._id === id ? users[1] : users[0];
-            delete rawContact.users;
-            let finalContact = {
-              id: contact._id,
-              username: contact.username,
-              name: contact.displayName,
-              created: new Date(rawContact.created)
-            }
-            contacts.push(finalContact);
+          let contact = rawContact.user;
+          delete rawContact.user;
+          let finalContact = {
+            id: contact._id,
+            username: contact.username,
+            name: contact.displayName,
+            created: new Date(rawContact.created)
           }
+          contacts.push(finalContact);
         }
       }
       return contacts;
