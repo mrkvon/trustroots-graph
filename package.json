@@ -4,7 +4,6 @@
   "description": "information scraper for trustroots",
   "main": "index.js",
   "dependencies": {
-    "co": "^4.6.0",
     "denodeify": "^1.2.1",
     "prompt": "^1.0.0",
     "request": "^2.75.0"
@@ -12,7 +11,7 @@
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./index.js",
+    "start": "node --harmony ./index.js",
     "prepare": ". ./prepare.sh"
   },
   "repository": {

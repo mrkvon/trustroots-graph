@@ -1,6 +1,5 @@
 'use strict';
 
-let co = require('co');
 let fs = require('fs');
 let denodeify = require('denodeify');
 
@@ -46,117 +45,109 @@ class Graph {
   //async
   
   //filling the graph with the data
-  scrape(usernames) {
-    return co.call(this, function * () {
-      //TODO there may be also ids stored for efficiency
+  async scrape(usernames) {
+    //TODO there may be also ids stored for efficiency
 
-      let currentLevel = usernames;
-      let nextLevel;
-      while(currentLevel.length > 0) {
-        nextLevel = [];
-        for(let username of currentLevel) {
-          let user = new User(username);
+    let currentLevel = usernames;
+    let nextLevel;
+    while(currentLevel.length > 0) {
+      nextLevel = [];
+      for(let username of currentLevel) {
+        let user = new User(username);
 
-          //get connections of each user from nextLevel
-          try {
-            yield user.scrape();
+        //get connections of each user from nextLevel
+        try {
+          await user.scrape();
 
-            //save the user to this._users;
-            
-            this._users.push(user);
-            console.log(`${this.users.length}  ${user.username}  ${user.contacts.length}`);
+          //save the user to this._users;
+          
+          this._users.push(user);
+          console.log(`${this.users.length}  ${user.username}  ${user.contacts.length}`);
 
-            //fill first-time users to _nextLevel;
-            let contacts = user.contacts;
-            for(let contact of contacts) {
-              let isNotAnywhereYet = nextLevel.indexOf(contact.username) === -1 && currentLevel.indexOf(contact.username) === -1 && this.hasUser(contact.username) === false;
-              if(isNotAnywhereYet) {
-                nextLevel.push(contact.username);
-              }
-            }
-          }
-          catch(e) {
-            //there are some inconsistencies in the database - some contacts don't exist 
-            if(e.status === 404) {}
-            else{
-              throw e;
+          //fill first-time users to _nextLevel;
+          let contacts = user.contacts;
+          for(let contact of contacts) {
+            let isNotAnywhereYet = nextLevel.indexOf(contact.username) === -1 && currentLevel.indexOf(contact.username) === -1 && this.hasUser(contact.username) === false;
+            if(isNotAnywhereYet) {
+              nextLevel.push(contact.username);
             }
           }
         }
-        currentLevel = nextLevel;
+        catch(e) {
+          //there are some inconsistencies in the database - some contacts don't exist 
+          if(e.status === 404) {}
+          else{
+            throw e;
+          }
+        }
       }
-    });
+      currentLevel = nextLevel;
+    }
   }
   
-  outputGraph (filename) {
-    return co.call(this, function * () {
-      var path = `./output/${filename || 'graph'}.gdf`;
-      
-      //outputString will be eventually written to the gdf file
-      //first the node header
-      var outputString = 'nodedef>name VARCHAR,label VARCHAR\n';
-      //write users to the outputString;
-      let users = this.users;
-      for(let user of users) {
-        outputString += `${user.username},${user.username}\n`;
-      }
-      
-      //write edge header to the outputString
-      outputString += 'edgedef>node1 VARCHAR,node2 VARCHAR\n'
-      //write links to the outputString
-      let links = this.links;
-      for(let link of links) {
-        outputString += `${link[0]},${link[1]}\n`;
-      }
-      
-      //write the data to the file
-      yield unlink(path);
-      yield writeFile(path, outputString);
-    });
+  async outputGraph (filename) {
+    var path = `./output/${filename || 'graph'}.gdf`;
+    
+    //outputString will be eventually written to the gdf file
+    //first the node header
+    var outputString = 'nodedef>name VARCHAR,label VARCHAR\n';
+    //write users to the outputString;
+    let users = this.users;
+    for(let user of users) {
+      outputString += `${user.username},${user.username}\n`;
+    }
+    
+    //write edge header to the outputString
+    outputString += 'edgedef>node1 VARCHAR,node2 VARCHAR\n'
+    //write links to the outputString
+    let links = this.links;
+    for(let link of links) {
+      outputString += `${link[0]},${link[1]}\n`;
+    }
+    
+    //write the data to the file
+    await unlink(path);
+    await writeFile(path, outputString);
   }
 
-  outputDynamicGraph (filename) {
-    return co.call(this, function * () {
-      var path = `./output/${filename || 'graph'}.gdf`;
-      
-      //outputString will be eventually written to the gdf file
-      //first the node header
-      var outputString = 'nodedef>name VARCHAR,label VARCHAR,timeinterval VARCHAR\n';
-      //write users to the outputString;
-      let users = this.users;
-      for(let user of users) {
-        outputString += `${user.username},${user.username},${getOutputDate.call(user.created)}\n`;
-      }
-      
-      //write edge header to the outputString
-      outputString += 'edgedef>node1 VARCHAR,node2 VARCHAR,timeinterval VARCHAR\n'
-      //write links to the outputString
-      let links = this.links;
-      for(let link of links) {
-        outputString += `${link[0]},${link[1]},${getOutputDate.call(link[2])}\n`;
-      }
-      
-      //write the data to the file
-      yield unlink(path);
-      yield writeFile(path, outputString);
-    });
+  async outputDynamicGraph (filename) {
+    var path = `./output/${filename || 'graph'}.gdf`;
+    
+    //outputString will be eventually written to the gdf file
+    //first the node header
+    var outputString = 'nodedef>name VARCHAR,label VARCHAR,timeinterval VARCHAR\n';
+    //write users to the outputString;
+    let users = this.users;
+    for(let user of users) {
+      outputString += `${user.username},${user.username},${getOutputDate.call(user.created)}\n`;
+    }
+    
+    //write edge header to the outputString
+    outputString += 'edgedef>node1 VARCHAR,node2 VARCHAR,timeinterval VARCHAR\n'
+    //write links to the outputString
+    let links = this.links;
+    for(let link of links) {
+      outputString += `${link[0]},${link[1]},${getOutputDate.call(link[2])}\n`;
+    }
+    
+    //write the data to the file
+    await unlink(path);
+    await writeFile(path, outputString);
   }
 
-  outputUsers (filename) {
-    return co.call(this, function * () {
-      var path = `./output/${filename || 'users'}.txt`;
+  async outputUsers (filename) {
+    var path = `./output/${filename || 'users'}.txt`;
 
-      //get usernames from the list of user objects
-      var usernames = [];
-      var users = this.users;
-      for(let user of users) {
-        usernames.push(user.username);
-      }
-      
-      //write to output file
-      yield unlink(path);
-      yield writeFile(path, usernames.join('\n')+'\n');
-    });
+    //get usernames from the list of user objects
+    var usernames = [];
+    var users = this.users;
+    for(let user of users) {
+      usernames.push(user.username);
+    }
+    
+    //write to output file
+    await unlink(path);
+    await writeFile(path, usernames.join('\n')+'\n');
   }
 }
 

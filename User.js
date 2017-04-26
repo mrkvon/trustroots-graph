@@ -1,7 +1,5 @@
 'use strict';
 
-let co = require('co');
-
 let TR = require('./TR');
 //object User represents each user
 //async User.scrape(): read User data
@@ -37,15 +35,13 @@ class User {
   }
   
   //async
-  scrape () {
-    return co.call(this, function * () {
-      let user = yield TR.user(this._username);
-      let contacts = yield TR.contacts(user.id);
+  async scrape () {
+    let user = await TR.user(this._username);
+    let contacts = await TR.contacts(user.id);
 
-      this._id = user.id;
-      this._created = user.created
-      this._contacts = contacts;
-    });
+    this._id = user.id;
+    this._created = user.created
+    this._contacts = contacts;
   }
 }
 

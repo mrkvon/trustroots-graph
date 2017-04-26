@@ -2,12 +2,11 @@
 
 let TR = require('./TR');
 let Graph = require('./Graph');
-let co = require('co');
 let prompt = require('prompt');
 let denodeify = require('denodeify');
 let promptGet = denodeify(prompt.get);
 
-return co(function * () {
+(async function () {
   var loginSchema = {
     properties: {
       username: {
@@ -35,28 +34,28 @@ return co(function * () {
   console.log('\n**************************************************\n\n')
   console.log('Write your login data for trustroots.org:');
   prompt.start();
-  let result = yield promptGet(loginSchema);
+  let result = await promptGet(loginSchema);
   let username = result.username;
   let password = result.password
 
-  yield TR.login(username, password);
+  await TR.login(username, password);
   console.log('successfully logged in as', username);
 
 
   console.log(`\n\nWrite the username from which you wish to start crawling:\ndefault: ${username}`);
   prompt.start();
-  let startResult = yield promptGet(startSchema);
+  let startResult = await promptGet(startSchema);
   let startUsername = startResult.username || username;
 
   console.log('\nscraping started. be patient. it can take a while (around 1000 connected users).\n');
   console.log('\noutput:\ncount  username  count contacts\n');
 
   var graph = new Graph();
-  yield graph.scrape([startUsername]);
+  await graph.scrape([startUsername]);
 
   //write the data to files
-  yield graph.outputUsers();
-  yield graph.outputDynamicGraph();
+  await graph.outputUsers();
+  await graph.outputDynamicGraph();
 
   console.log('\n\n********************************************************\n');
   console.log('\tfinished successfully!\n');
@@ -66,10 +65,10 @@ return co(function * () {
   console.log('\tyou can try Gephi to visualise them\n');
   console.log('\tGoodbye! ^_^\n');
   console.log('********************************************************\n');
-})
-  .catch(function (e) {
-    if(e.status === 403) {
-      console.log('login not successful.');
-    }
-    else console.error(e);
-  });
+})()
+.catch(function (e) {
+  if(e.status === 403) {
+    console.log('login not successful.');
+  }
+  else console.error(e);
+});

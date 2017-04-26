@@ -1,17 +1,17 @@
-#Trustroots graph
+# Trustroots graph
 
 This script finds users of [trustroots.org](https://www.trustroots.org) and their connection to other users.
 
 It crawls through the trustroots network searching users and their connections.
 Users without connection to the main network will not be found.
 
-##Prerequisities
+## Prerequisities
 
-Node.js supporting ES2016 installed
+Node.js version 7.1+ (support for async functions and ES7)
 
 Node Package Manager (npm) installed
 
-##Installation
+## Installation
 
 1. clone this repository
 2. run the following commands in terminal in the folder of the repository
@@ -19,7 +19,7 @@ Node Package Manager (npm) installed
 		npm install
 		npm run prepare
 
-##Usage
+## Usage
 
 - run `npm start`
 - provide your login data
@@ -27,10 +27,10 @@ Node Package Manager (npm) installed
 - watch the data scraper work. When it finishes, you'll find list of connected users in `output/users.txt` and a graph in `.gdf` format in `output/graph.gdf`
 - play with the data (i.e. with [gephi](https://gephi.org/))
 
-##To do
+## To do
 
 - time development of the network
 - shortest path between users
 
-##License
+## License
 MIT
